@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animals of Asparuhovo</title> 
+    <link rel="stylesheet" href="style.css"/> 
+</head>
+<body>  <header>
+    <div class="logo">Animals of Asparuhovo</div><nav>
+  <a href="cats.html">Cats</a>
+  <a href="dogs.html">Dogs</a>
+  <a href="#">Competition</a>
+</nav>
+
+<div class="menu-btn" onclick="toggleMenu()">⋮</div>
+
+<div class="dropdown" id="dropdownMenu">
+  <a href="#">Big Pier</a>
+  <a href="#">Small Pier</a>
+  <a href="#">Beachland</a>
+  <a href="#">Southern City</a>
+</div>
+
+  </header>  <main>
+    <section class="hero">
+      <h1>Welcome to Animals of Asparuhovo</h1>
+      <p>
+        A fun, unofficial website dedicated to the street cats and dogs
+        living in Asparuhovo district, Varna.
+      </p>
+    </section><section class="info">
+  <p>
+    This site is not serious, not official, and not perfect — it is made
+    for fun, for learning HTML, and for showing the everyday animal life
+    around us.
+  </p>
+  <p>
+    You can explore cats and dogs by areas like the piers, the beach,
+    and nearby neighborhoods. Some animals are friendly, some are grumpy,
+    and some are absolute legends.
+  </p>
+  <p>
+    District: <strong>Asparuhovo, Varna</strong>
+  </p>
+</section>
+
+  </main>  <footer>
+    © Animals of Asparuhovo — made for fun & practice
+  </footer>  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('dropdownMenu');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('dropdownMenu');
+      const button = document.querySelector('.menu-btn');
+      if (!menu.contains(e.target) && !button.contains(e.target)) {
+        menu.style.display = 'none';
+      }
+    });
+  </script>
+  <main>
+ <section class="hero">
+    <h1>Animals of Asparuhovo</h1>
+    <p>Street cats and dogs of the Small Pier — stories, ratings, and local legends.</p>
+  </section>
+
+  <!-- Dynamic banners -->
+  <section class="info">
+
+    <!-- Animal of the Day -->
+    <div class="c" id="animalOfDay">
+      <div class="banner-title">🐾 Animal of the Day</div>
+      <div class="banner-name">Loading...</div>
+      <div class="banner-desc"></div>
+      <a class="banner-link" href="#">View profile →</a>
+    </div>
+
+    <!-- Placeholder for future flashmobs -->
+    <div class="banner banner-muted">
+      <div class="banner-title">📸 Community Flashmobs</div>
+      <div class="banner-desc">Coming soon — photo challenges & local events</div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  Animals of Asparuhovo — Small Pier
+</footer>
+
+<script>
+/* ===== Animal of the Day (Cats + Dogs) ===== */
+
+const animals = [
+  // Cats
+  {
+    name: 'Mini-Lapa',
+    desc: 'Son of Lapa. Milk lover. Does not enjoy being petted.',
+    link: 'cats.html#mini-lapa'
+  },
+  {
+    name: 'Elizabeth',
+    desc: 'Twin of Mini-Lapa. Friendly and curious.',
+    link: 'cats.html#elizabeth'
+  },
+  {
+    name: 'Black',
+    desc: 'Mother, generous, and loved by people.',
+    link: 'cats.html#black'
+  },
+  {
+    name: 'Martha',
+    desc: 'Independent, sporty, controversial favorite.',
+    link: 'cats.html#martha'
+  },
+  {
+    name: 'Timothy',
+    desc: 'Diplomat from Southern City, calm and respected.',
+    link: 'cats.html#timothy'
+  },
+
+  // Dogs
+  {
+    name: 'Freddy',
+    desc: 'Playful and handsome. Grew up on the pier.',
+    link: 'dogs.html#freddy'
+  },
+  {
+    name: 'Tom',
+    desc: 'Big, calm, and protective. Acts like a stepfather.',
+    link: 'dogs.html#tom'
+  },
+  {
+    name: 'Chupa',
+    desc: 'Playful mystery who decided to stay forever.',
+    link: 'dogs.html#chupa'
+  }
+];
+
+function pickAnimalOfDay() {
+  const today = new Date().toDateString();
+  let hash = 0;
+  for (let i = 0; i < today.length; i++) {
+    hash += today.charCodeAt(i);
+  }
+
+  return animals[hash % animals.length];
+}
+
+const chosen = pickAnimalOfDay();
+
+const banner = document.getElementById('animalOfDay');
+banner.querySelector('.banner-name').innerText = chosen.name;
+banner.querySelector('.banner-desc').innerText = chosen.desc;
+banner.querySelector('.banner-link').href = chosen.link;
+</script></body>
+</html>

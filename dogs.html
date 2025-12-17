@@ -1,0 +1,189 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dogs – Animals of Asparuhovo</title>  <!-- Styles -->  <link rel="stylesheet" href="dogs.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body><header class="site-header">
+  <div class="logo">Animals of Asparuhovo</div>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="cats.html">Cats</a>
+    <a href="dogs.html" class="active">Dogs</a>
+    <a href="competition.html">Competition</a>
+  </nav>
+</header><main class="content">  <section class="page-intro">
+    <h1>Dogs of Small Pier</h1>
+    <p>Local dogs from the Small Pier area. Tap a card to read the story and rate.</p>
+  </section>  <section class="card-grid"><!-- Freddy -->
+<article class="card" data-location="small-pier">
+  <div class="card-inner">
+    <div class="card-front">
+      <h2>Freddy</h2>
+      <div class="meta">~2 years • Playful • Handsome</div>
+      <span class="tag">Small Pier</span>
+      <div class="card-hint">Tap to flip</div>
+    </div>
+    <div class="card-back">
+      <h3>Story</h3>
+      <p>
+        Freddy was born in an apartment, but she and her siblings were
+        thrown out as puppies. She grew up friendly, energetic, and happy.
+      </p>
+
+      <div class="rating" data-id="freddy">
+        <div class="stars">
+          <span data-star="1">★</span>
+          <span data-star="2">★</span>
+          <span data-star="3">★</span>
+          <span data-star="4">★</span>
+          <span data-star="5">★</span>
+        </div>
+        <div class="rating-info">
+          <span class="avg">0.0</span> / 5 · <span class="votes">0</span> votes
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- Tom -->
+<article class="card" data-location="small-pier">
+  <div class="card-inner">
+    <div class="card-front">
+      <h2>Tom</h2>
+      <div class="meta">4+ years • Calm • Protective</div>
+      <span class="tag">Small Pier</span>
+      <div class="card-hint">Tap to flip</div>
+    </div>
+    <div class="card-back">
+      <h3>Story</h3>
+      <p>
+        Tom was born in a shelter and adopted, but later abandoned for
+        being too big. He acts like Freddy’s stepfather.
+      </p>
+
+      <div class="rating" data-id="tom">
+        <div class="stars">
+          <span data-star="1">★</span>
+          <span data-star="2">★</span>
+          <span data-star="3">★</span>
+          <span data-star="4">★</span>
+          <span data-star="5">★</span>
+        </div>
+        <div class="rating-info">
+          <span class="avg">0.0</span> / 5 · <span class="votes">0</span> votes
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<!-- Chupa -->
+<article class="card" data-location="small-pier">
+  <div class="card-inner">
+    <div class="card-front">
+      <h2>Chupa</h2>
+      <div class="meta">Age unknown • Playful</div>
+      <span class="tag">Small Pier</span>
+      <div class="card-hint">Tap to flip</div>
+    </div>
+    <div class="card-back">
+      <h3>Story</h3>
+      <p>
+        Chupa arrived two summers ago and decided to stay. Nobody knows
+        his age, but everyone knows his playful mood.
+      </p>
+
+      <div class="rating" data-id="chupa">
+        <div class="stars">
+          <span data-star="1">★</span>
+          <span data-star="2">★</span>
+          <span data-star="3">★</span>
+          <span data-star="4">★</span>
+          <span data-star="5">★</span>
+        </div>
+        <div class="rating-info">
+          <span class="avg">0.0</span> / 5 · <span class="votes">0</span> votes
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+  </section>
+</main><footer class="site-footer">
+  Animals of Asparuhovo — Dogs of Small Pier
+</footer><script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getDatabase, ref, get, runTransaction } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCHA0x5tq8Po9liJMAiW-8mKfdcpVTwq_I",
+  authDomain: "catweb-17233.firebaseapp.com",
+  databaseURL: "https://catweb-17233-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "catweb-17233",
+  storageBucket: "catweb-17233.firebasestorage.app",
+  messagingSenderId: "570888605898",
+  appId: "1:570888605898:web:e7f4cf78b06a8280792433"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ===== Flip cards (tap) ===== */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('is-flipped');
+  });
+});
+
+/* ===== Rating logic ===== */
+async function loadRatings() {
+  document.querySelectorAll('.rating').forEach(async rating => {
+    const id = rating.dataset.id;
+    const snap = await get(ref(db, 'ratings/' + id));
+    if (!snap.exists()) return;
+
+    const { total, votes } = snap.val();
+    const avg = (total / votes).toFixed(1);
+
+    rating.querySelector('.avg').innerText = avg;
+    rating.querySelector('.votes').innerText = votes;
+
+    rating.querySelectorAll('.stars span').forEach(star => {
+      star.classList.toggle('active', star.dataset.star <= avg);
+    });
+  });
+}
+
+function voteOnce(id, value) {
+  const key = 'voted_' + id;
+  if (localStorage.getItem(key)) return;
+
+  localStorage.setItem(key, 'true');
+
+  const ratingRef = ref(db, 'ratings/' + id);
+  runTransaction(ratingRef, current => {
+    if (current === null) {
+      return { total: value, votes: 1 };
+    }
+    return { total: current.total + value, votes: current.votes + 1 };
+  }).then(loadRatings);
+}
+
+/* ===== Star events ===== */
+document.querySelectorAll('.rating').forEach(rating => {
+  const id = rating.dataset.id;
+  rating.querySelectorAll('.stars span').forEach(star => {
+    star.addEventListener('click', e => {
+      e.stopPropagation();
+      voteOnce(id, Number(star.dataset.star));
+    });
+  });
+});
+
+loadRatings();
+</script></body>
+</html>

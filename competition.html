@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Competition – Animals of Asparuhovo</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Animals of Asparuhovo</div>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="cats.html">Cats</a>
+    <a href="dogs.html">Dogs</a>
+    <a href="competition.html" class="active">Competition</a>
+  </nav>
+</header>
+
+<main class="content">
+
+<section class="page-intro">
+  <h1>🏆 Weekly Pet Competition</h1>
+  <p>
+    This leaderboard resets every week.
+    Scores are calculated automatically based on ratings, votes, and activity.
+  </p>
+</section>
+
+<section class="leaderboard" id="leaderboard">
+  <div class="loading">Loading competition data…</div>
+</section>
+
+<section class="winner-banner" id="winnerBanner" hidden>
+  <div class="winner-card">
+    <div class="crown">👑</div>
+    <h2 id="winnerName">Winner</h2>
+    <p class="winner-score" id="winnerScore"></p>
+    <span class="winner-note">Weekly Champion</span>
+  </div>
+</section>
+
+<section class="scoring-info">
+  <h2>How scoring works</h2>
+  <ul>
+    <li>⭐ Average rating × 50</li>
+    <li>👥 Total votes × 5</li>
+    <li>🔄 Weekly interactions × 2</li>
+  </ul>
+  <p class="note">One interaction per device per day.</p>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  Animals of Asparuhovo — Weekly Competition
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCHA0x5tq8Po9liJMAiW-8mKfdcpVTwq_I",
+  authDomain: "catweb-17233.firebaseapp.com",
+  databaseURL: "https://catweb-17233-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "catweb-17233",
+  storageBucket: "catweb-17233.firebasestorage.app",
+  messagingSenderId: "570888605898",
+  appId: "1:570888605898:web:e7f4cf78b06a8280792433"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+function getWeekKey() {
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), 0, 1);
+  const week = Math.ceil((((now - firstDay) / 86400000) + firstDay.getDay() + 1) / 7);
+  return `${now.getFullYear()}-W${week}`;
+}
+
+const WEEK_KEY = getWeekKey();
+
+async function loadCompetition() {
+  const ratingsSnap = await get(ref(db, 'ratings'));
+  const statsSnap = await get(ref(db, `weeklyStats/${WEEK_KEY}`));
+
+  if (!ratingsSnap.exists()) return;
+
+  const ratings = ratingsSnap.val();
+  const stats = statsSnap.exists() ? statsSnap.val() : {};
+
+  const results = [];
+
+  for (const id in ratings) {
+    const r = ratings[id];
+    const interactions = stats[id]?.interactions || 0;
+    const avg = r.total / r.votes;
+
+    const score =
+      (avg * 50) +
+      (r.votes * 5) +
+      (interactions * 2);
+
+    results.push({
+      id,
+      avg: avg.toFixed(1),
+      votes: r.votes,
+      interactions,
+      score: Math.round(score)
+    });
+  }
+
+  results.sort((a, b) => b.score - a.score);
+  renderLeaderboard(results);
+}
+
+function renderLeaderboard(list) {
+  const board = document.getElementById('leaderboard');
+  const banner = document.getElementById('winnerBanner');
+
+  board.innerHTML = '';
+
+  list.forEach((c, i) => {
+    const place = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+
+    const card = document.createElement('div');
+    card.className = 'leaderboard-row';
+    card.style.animationDelay = `${i * 0.08}s`;
+
+    card.innerHTML = `
+      <div class="place">${place}</div>
+      <div class="name">${c.id.replace('-', ' ')}</div>
+      <div class="details">
+        ⭐ ${c.avg} · 👥 ${c.votes} · 🔄 ${c.interactions}
+      </div>
+      <div class="score">${c.score} pts</div>
+    `;
+
+    board.appendChild(card);
+
+    if (i === 0) {
+      document.getElementById('winnerName').innerText = c.id.replace('-', ' ');
+      document.getElementById('winnerScore').innerText = `${c.score} points`;
+      banner.hidden = false;
+    }
+  });
+}
+
+loadCompetition();
+</script>
+
+</body>
+</html>
